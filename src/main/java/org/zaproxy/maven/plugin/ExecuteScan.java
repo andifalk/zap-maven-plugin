@@ -162,7 +162,7 @@ public class ExecuteScan extends AbstractMojo {
 
         while ( statusToInt(clientApi.spider.status()) < 100) {
             try {
-                Thread.sleep(1000);
+                Thread.sleep(500);
             } catch (InterruptedException e) {
                 getLog().error(e.toString());
             }
@@ -180,24 +180,25 @@ public class ExecuteScan extends AbstractMojo {
 
         while ( statusToInt(clientApi.ascan.status()) < 100) {
             try {
-                Thread.sleep(1000);
+                Thread.sleep(500);
             } catch (InterruptedException e) {
                 getLog().error(e.toString());
             }
         }
     }
     
-    public void checkAlerts(String url) throws ClientApiException, ZapAlertsReportedException {
+    private void checkAlerts(String url) throws ClientApiException, ZapAlertsReportedException {
     	// Retrieve all relevant alerts from API
-    	List<Alert> reportedAlerts = clientApi.getAlerts(url, -1, -1);
+    	List<Alert> foundAlerts = clientApi.getAlerts(url, -1, -1);
     	List<Alert> ignoredAlerts = new ArrayList<Alert>();
     	List<Alert> requireAlerts = new ArrayList<Alert>();
+    	List<Alert> reportedAlerts = new ArrayList<Alert>();
     	
-    	for (Alert alert : reportedAlerts) {
+    	for (Alert alert : foundAlerts) {
 			if (alertIsIgnored(alert)) {
 				ignoredAlerts.add(alert);
 			} else {
-				requireAlerts.add(alert);
+				reportedAlerts.add(alert);
 			}
 		}
     	
@@ -205,16 +206,21 @@ public class ExecuteScan extends AbstractMojo {
     	if (reportAlerts) {
     		File outputFile;
 			try {
-				outputFile = Files.createTempFile(Paths.get(reportDirectory), "ZAP", "xml").toFile();
+				Files.createDirectories(Paths.get(reportDirectory));
+				outputFile = Files.createTempFile(Paths.get(reportDirectory), "ZAP", ".xml").toFile();
 	    		AlertsFile.saveAlertsToFile(requireAlerts, reportedAlerts, ignoredAlerts, outputFile);
 			} catch (IOException | JDOMException e) {
 				getLog().error("Error creating alerts report file", e);
 			}
     	}
     	
-    	// Fail build on required alerts if enabled
-    	if (failOnAlerts && !requireAlerts.isEmpty()) {
-    		throw new ZapAlertsReportedException("There are security alerts!");
+    	// Fail build on reported alerts if enabled
+    	if (failOnAlerts && !reportedAlerts.isEmpty()) {
+    		throw new ZapAlertsReportedException(String.format("%s relevant security alerts have been detected!", reportedAlerts.size()));
+    	} else if (!reportedAlerts.isEmpty()) {
+    		getLog().warn(String.format("%s relevant security alerts have been detected!", reportedAlerts.size()));
+    	} else {
+    		getLog().info("Success: No relevant security alerts have been detected!");
     	}
     }
 
