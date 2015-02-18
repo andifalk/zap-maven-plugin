@@ -87,7 +87,7 @@ public class LaunchZap extends AbstractMojo
                     public void run() {
                         try {
                             BufferedReader reader = new BufferedReader(new InputStreamReader(ps.getInputStream()));
-                            String line = "";
+                            String line;
                             try {
                                 while((line = reader.readLine()) != null) {
                                     // Traitement du flux de sortie de l'application si besoin est
@@ -107,7 +107,7 @@ public class LaunchZap extends AbstractMojo
                     public void run() {
                         try {
                             BufferedReader reader = new BufferedReader(new InputStreamReader(ps.getErrorStream()));
-                            String line = "";
+                            String line;
                             try {
                                 while((line = reader.readLine()) != null) {
                                     // Traitement du flux d'erreur de l'application si besoin est
@@ -123,7 +123,7 @@ public class LaunchZap extends AbstractMojo
                 }.start();       
                 
             }
-            Thread.currentThread().sleep(zapSleep);
+            Thread.sleep(zapSleep);
         } catch(Exception e) {
                 e.printStackTrace();
                 throw new MojoExecutionException("Unable to start ZAP [" + zapProgram + "]");

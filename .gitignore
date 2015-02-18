@@ -8,3 +8,5 @@ release.properties
 .project
 .settings/
 
+.idea/
+zap-maven-plugin.iml

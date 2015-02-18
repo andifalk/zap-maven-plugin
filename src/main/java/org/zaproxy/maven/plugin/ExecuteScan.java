@@ -190,9 +190,9 @@ public class ExecuteScan extends AbstractMojo {
     private void checkAlerts(String url) throws ClientApiException, ZapAlertsReportedException {
     	// Retrieve all relevant alerts from API
     	List<Alert> foundAlerts = clientApi.getAlerts(url, -1, -1);
-    	List<Alert> ignoredAlerts = new ArrayList<Alert>();
-    	List<Alert> requireAlerts = new ArrayList<Alert>();
-    	List<Alert> reportedAlerts = new ArrayList<Alert>();
+    	List<Alert> ignoredAlerts = new ArrayList<> ();
+    	List<Alert> requireAlerts = new ArrayList<> ();
+    	List<Alert> reportedAlerts = new ArrayList<> ();
     	
     	for (Alert alert : foundAlerts) {
 			if (alertIsIgnored(alert)) {
@@ -266,7 +266,7 @@ public class ExecuteScan extends AbstractMojo {
             }
 
             // Store zap session, if enabled
-            String fileName = "";
+            String fileName;
             if (saveSession) {
                 fileName = "ZAP_" + dateTimeString();
                 clientApi.core.saveSession(apiKey, fileName, "true");
